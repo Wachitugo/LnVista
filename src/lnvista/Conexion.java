@@ -27,10 +27,10 @@ public class Conexion {
     public void llenarTablaChofer(JTable tablaChofer) {
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT c.rut_cho AS run,c.nombre_cho AS nombre,cl.nombre_cliente AS empresa,o.nombre_ob AS obra,m.nombre_maquina AS maquina \n"
                 + "FROM lnmaqui.chofer c\n"
-                + "JOIN lnmaqui.obracho oc ON c.id_cho = oc.id_choo\n"
-                + "JOIN lnmaqui.obra o ON oc.id_obrac = o.id_obra\n"
-                + "JOIN lnmaqui.cliente cl ON o.id_cliente = cl.id_cliente\n"
-                + "FULL JOIN lnmaqui.maquinacho mc ON mc.id_chom = c.id_cho\n"
+                + "LEFT JOIN lnmaqui.obracho oc ON c.id_cho = oc.id_choo\n"
+                + "LEFT JOIN lnmaqui.obra o ON oc.id_obrac = o.id_obra\n"
+                + "LEFT JOIN lnmaqui.cliente cl ON o.id_cliente = cl.id_cliente\n"
+                + "LEFT JOIN lnmaqui.maquinacho mc ON mc.id_chom = c.id_cho\n"
                 + "LEFT JOIN lnmaqui.maquina m ON m.id_maquina = mc.id_maquinac"); ResultSet rs = stmt.executeQuery()) {
 
             DefaultTableModel model = (DefaultTableModel) tablaChofer.getModel();
@@ -60,14 +60,54 @@ public class Conexion {
         }
     }
 
+    public void llenarTablaSupervisor(JTable tablaSupervisor,JComboBox<String> jCBSupervisor) {
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT rut_superv,nombre_su,nombre_cliente,nombre_ob FROM lnmaqui.supervisor s "
+                + "JOIN lnmaqui.obrasup os ON os.id_superv=s.id_superv "
+                + "JOIN lnmaqui.obra o ON os.id_obra=o.id_obra "
+                + "JOIN lnmaqui.cliente c ON c.id_cliente = o.id_cliente "); ResultSet rs = stmt.executeQuery()) {
+
+            DefaultTableModel model = (DefaultTableModel) tablaSupervisor.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {rs.getInt("rut_superv"), rs.getString("nombre_su"), rs.getString("nombre_cliente"), rs.getString("nombre_ob"),jCBSupervisor};
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void llenarTablaobra(JTable tablaObra) {
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT nombre_cliente,fono_cliente,correo_cliente,nombre_ob,nombre_su,o.descripcion AS descripcion FROM lnmaqui.cliente c JOIN lnmaqui.obra o ON c.id_cliente = o.id_cliente JOIN lnmaqui.supervisor s ON s.id_superv=o.id_superv"); ResultSet rs = stmt.executeQuery()) {
+        String sql = "SELECT nombre_cliente,fono_cliente,correo_cliente,nombre_ob,o.descripcion AS descripcion \n"
+                + "FROM lnmaqui.cliente c \n"
+                + "LEFT JOIN lnmaqui.obra o ON c.id_cliente = o.id_cliente \n";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             DefaultTableModel model = (DefaultTableModel) tablaObra.getModel();
             model.setRowCount(0);
 
             while (rs.next()) {
-                Object[] row = {rs.getString("nombre_cliente"), rs.getInt("fono_cliente"), rs.getString("correo_cliente"), rs.getString("nombre_ob"), rs.getString("nombre_su"), rs.getString("descripcion")};
+                Object[] row = {rs.getString("nombre_cliente"), rs.getInt("fono_cliente"), rs.getString("correo_cliente"), rs.getString("nombre_ob"), rs.getString("descripcion")};
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void llenarTablaPrecio(JTable tablaPrecio) {
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT nombre_maquina,nombre_cliente,nombre_ob,TO_CHAR(precio,'$999G999G999') AS precio "
+                + "FROM lnmaqui.maquinaPrecio mp\n"
+                + "JOIN lnmaqui.maquina m ON m.id_maquina = mp.id_maquina\n"
+                + "JOIN lnmaqui.obra o ON o.id_obra = mp.id_obra \n"
+                + "JOIN lnmaqui.cliente c ON c.id_cliente = mp.id_cliente"); ResultSet rs = stmt.executeQuery()) {
+
+            DefaultTableModel model = (DefaultTableModel) tablaPrecio.getModel();
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {rs.getString("nombre_maquina"), rs.getString("nombre_cliente"), rs.getString("nombre_ob"), rs.getString("precio")};
                 model.addRow(row);
             }
         } catch (SQLException e) {
@@ -76,25 +116,14 @@ public class Conexion {
     }
 
     public void llenarTablaReporte(JTable tablaReporte) {
-       try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT id_reporte FROM lnmaqui.idrepo"); ResultSet rs = stmt.executeQuery()) {
+
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT nom_chofer,TO_CHAR(fecha,'DD/MM/YY') AS fecha,nom_empresa,nom_obra,nombre_maquina,nom_supervisor,litros,kmhora,TO_CHAR(horario_manini,'HH:mi')||' a '||TO_CHAR(horario_manfin,'HH:mi') AS horarioMan,TO_CHAR(horario_tarini,'HH:mi')||' a '||TO_CHAR(horario_tarfin,'HH:mi') AS horarioTar,observacion FROM lnmaqui.reporte "); ResultSet rs = stmt.executeQuery()) {
 
             DefaultTableModel model = (DefaultTableModel) tablaReporte.getModel();
             model.setRowCount(0);
 
             while (rs.next()) {
-                Object[] row = { rs.getInt("id_reporte")};
-                model.addRow(row);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT nom_chofer,TO_CHAR(fecha,'DD/MM/YY') AS fecha,nom_empresa,nom_obra,nombre_maquina,nom_supervisor,litros,kmhora,TO_CHAR(horario_manini,'HH:mi')||' a '||TO_CHAR(horario_manfin,'HH:mi') AS horarioMan,TO_CHAR(horario_tarini,'HH:mi')||' a '||TO_CHAR(horario_tarfin,'HH:mi') AS horarioTar,observacion FROM lnmaqui.reporte CROSS JOIN lnmaqui.idrepo id "); ResultSet rs = stmt.executeQuery()) {
-
-            DefaultTableModel model = (DefaultTableModel) tablaReporte.getModel();
-            model.setRowCount(0);
-
-            while (rs.next()) {
-                Object[] row = { rs.getString("nom_chofer"), rs.getString("fecha"), rs.getString("nom_empresa"), rs.getString("nom_obra"), rs.getString("nombre_maquina"), rs.getString("nom_supervisor"), rs.getString("litros"), rs.getString("kmhora"), rs.getString("horarioMan"), rs.getString("horarioTar"), rs.getString("observacion")};
+                Object[] row = {rs.getString("nom_chofer"), rs.getString("fecha"), rs.getString("nom_empresa"), rs.getString("nom_obra"), rs.getString("nombre_maquina"), rs.getString("nom_supervisor"), rs.getString("litros"), rs.getString("kmhora"), rs.getString("horarioMan"), rs.getString("horarioTar"), rs.getString("observacion")};
                 model.addRow(row);
             }
         } catch (SQLException e) {
@@ -176,6 +205,24 @@ public class Conexion {
         jCBObra.setModel(comboBoxModel);
     }
 
+    public void cargarMaquina(JComboBox<String> jCBMaquinaPre) {
+        DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>();
+
+        try (Connection connection = getConnection()) {
+            String query = "SELECT nombre_maquina FROM lnmaqui.maquina ";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query); ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    String nombreEmpresa = resultSet.getString("nombre_maquina");
+                    comboBoxModel.addElement(nombreEmpresa);
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        jCBMaquinaPre.setModel(comboBoxModel);
+    }
+
     public void cargarMaquinasPorObra(String nombreObra, JComboBox<String> jCBMaquina) {
         DefaultComboBoxModel<String> comboBoxModel = new DefaultComboBoxModel<>();
 
@@ -186,7 +233,6 @@ public class Conexion {
                 try (ResultSet resultSetCliente = preparedStatementCliente.executeQuery()) {
                     if (resultSetCliente.next()) {
                         int idObra = resultSetCliente.getInt("id_obra");
-
                         String queryObras = "SELECT nombre_maquina FROM lnmaqui.maquina m JOIN lnmaqui.obramaquina om ON m.id_maquina=om.id_maquinao WHERE id_obram=?";
                         try (PreparedStatement preparedStatementObras = connection.prepareStatement(queryObras)) {
                             preparedStatementObras.setInt(1, idObra);
@@ -199,7 +245,9 @@ public class Conexion {
                                 }
 
                                 if (!hayObras) {
-                                    comboBoxModel.addElement("No hay maquinas");
+                                    comboBoxModel.addElement("No hay máquinas");
+                                } else {
+                                    comboBoxModel.addElement("Sin máquina");
                                 }
                             }
                         }
@@ -259,7 +307,36 @@ public class Conexion {
         }
     }
 
-    //BARRA DE BUSQUEDA
+    //BARRA DE BUSQUEDA}
+    public void buscarSuper(JTextField buscatodo, JTable tablaSupervisor,JComboBox<String> jCBSupervisor) {
+        String sql = "SELECT rut_superv, nombre_su, nombre_cliente, nombre_ob "
+                + "FROM lnmaqui.supervisor s "
+                +"JOIN lnmaqui.obrasup os ON os.id_superv = s.id_superv "                   
+                + "JOIN lnmaqui.obra o ON o.id_obra = os.id_obra "
+                + "JOIN lnmaqui.cliente c ON c.id_cliente = o.id_cliente "
+                + "WHERE CAST(s.rut_superv AS VARCHAR) ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR s.nombre_su ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR c.nombre_cliente ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR o.nombre_ob ILIKE '%" + buscatodo.getText().trim() + "%'";
+
+        DefaultTableModel model = (DefaultTableModel) tablaSupervisor.getModel();
+        if (!buscatodo.getText().isEmpty()) {
+            try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+
+                model.setRowCount(0);
+
+                while (rs.next()) {
+                    Object[] row = {rs.getInt("rut_superv"), rs.getString("nombre_su"), rs.getString("nombre_cliente"), rs.getString("nombre_ob")};
+                    model.addRow(row);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            llenarTablaSupervisor(tablaSupervisor,jCBSupervisor);
+        }
+    }
+
     public void buscarChofer(JTextField buscatodo, JTable tablaChofer) {
         String sql = "SELECT c.rut_cho AS run, c.nombre_cho AS nombre, cl.nombre_cliente AS empresa, o.nombre_ob AS obra, m.nombre_maquina AS maquina "
                 + "FROM lnmaqui.chofer c "
@@ -268,36 +345,41 @@ public class Conexion {
                 + "JOIN lnmaqui.cliente cl ON o.id_cliente = cl.id_cliente "
                 + "JOIN lnmaqui.maquinacho mc ON mc.id_chom = c.id_cho "
                 + "JOIN lnmaqui.maquina m ON m.id_maquina = mc.id_maquinac "
-                + "WHERE CAST(c.rut_cho AS VARCHAR) ILIKE '%" + buscatodo.getText()
-                + "%' OR c.nombre_cho ILIKE '" + buscatodo.getText() + "%' OR cl.nombre_cliente ILIKE '%" + buscatodo.getText()
-                + "%' OR o.nombre_ob ILIKE '%" + buscatodo.getText() + "%' OR m.nombre_maquina ILIKE '%" + buscatodo.getText() + "%'";
+                + "WHERE CAST(c.rut_cho AS VARCHAR) ILIKE '%" + buscatodo.getText().trim()
+                + "%' OR c.nombre_cho ILIKE '" + buscatodo.getText().trim() + "%' OR cl.nombre_cliente ILIKE '%" + buscatodo.getText().trim()
+                + "%' OR o.nombre_ob ILIKE '%" + buscatodo.getText().trim() + "%' OR m.nombre_maquina ILIKE '%" + buscatodo.getText().trim() + "%'";
 
         DefaultTableModel model = (DefaultTableModel) tablaChofer.getModel();
+        if (!buscatodo.getText().isEmpty()) {
+            try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+                model.setRowCount(0);
 
-            model.setRowCount(0);
-
-            while (rs.next()) {
-                Object[] row = {rs.getInt("run"), rs.getString("nombre"), rs.getString("empresa"), rs.getString("obra"), rs.getString("maquina")};
-                model.addRow(row);
+                while (rs.next()) {
+                    Object[] row = {rs.getInt("run"), rs.getString("nombre"), rs.getString("empresa"), rs.getString("obra"), rs.getString("maquina")};
+                    model.addRow(row);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } else {
+            llenarTablaChofer(tablaChofer);
         }
+
     }
 
     public void buscarRegistrosObra(JTextField buscatodo, JTable tablaObra) {
         String sql = "SELECT c.nombre_cliente, c.fono_cliente, c.correo_cliente, o.nombre_ob, s.nombre_su, o.descripcion "
                 + "FROM lnmaqui.cliente c "
                 + "JOIN lnmaqui.obra o ON c.id_cliente = o.id_cliente "
-                + "JOIN lnmaqui.supervisor s ON s.id_superv = o.id_superv "
-                + "WHERE CAST(c.fono_cliente AS VARCHAR) ILIKE '%" + buscatodo.getText()
-                + "%' OR c.nombre_cliente ILIKE '" + buscatodo.getText()
-                + "%' OR o.nombre_ob ILIKE '%" + buscatodo.getText()
-                + "%' OR c.correo_cliente ILIKE '%" + buscatodo.getText()
-                + "%' OR s.nombre_su ILIKE '%" + buscatodo.getText()
-                + "%' OR o.descripcion ILIKE '%" + buscatodo.getText() + "%'";
+                + "JOIN lnmaqui.obrasup os ON o.id_obra = os.id_obra"
+                + "JOIN lnmaqui.supervisor s ON s.id_superv = ossssssssss.id_superv "
+                + "WHERE CAST(c.fono_cliente AS VARCHAR) ILIKE '%" + buscatodo.getText().trim()
+                + "%' OR c.nombre_cliente ILIKE '" + buscatodo.getText().trim()
+                + "%' OR o.nombre_ob ILIKE '%" + buscatodo.getText().trim()
+                + "%' OR c.correo_cliente ILIKE '%" + buscatodo.getText().trim()
+                + "%' OR s.nombre_su ILIKE '%" + buscatodo.getText().trim()
+                + "%' OR o.descripcion ILIKE '%" + buscatodo.getText().trim() + "%'";
 
         DefaultTableModel model = (DefaultTableModel) tablaObra.getModel();
 
@@ -320,11 +402,11 @@ public class Conexion {
                 + "FROM lnmaqui.maquina m "
                 + "JOIN lnmaqui.obramaquina om ON om.id_maquinao = m.id_maquina "
                 + "JOIN lnmaqui.obra o ON om.id_obram = o.id_obra "
-                + "WHERE CAST(m.kilometros AS VARCHAR) ILIKE '%" + buscatodo.getText() + "%' "
-                + "OR CAST(m.horometro AS VARCHAR) ILIKE '%" + buscatodo.getText() + "%' "
-                + "OR m.nombre_maquina ILIKE '%" + buscatodo.getText() + "%' "
-                + "OR o.nombre_ob ILIKE '%" + buscatodo.getText() + "%' "
-                + "OR m.patente ILIKE '%" + buscatodo.getText() + "%'";
+                + "WHERE CAST(m.kilometros AS VARCHAR) ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR CAST(m.horometro AS VARCHAR) ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR m.nombre_maquina ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR o.nombre_ob ILIKE '%" + buscatodo.getText().trim() + "%' "
+                + "OR m.patente ILIKE '%" + buscatodo.getText().trim() + "%'";
 
         DefaultTableModel model = (DefaultTableModel) tablaMaquina.getModel();
 
@@ -342,38 +424,62 @@ public class Conexion {
         }
     }
 
-        public void buscarReporte(JTextField buscaReporte, JTable tablaReporte) {
-    String sql = "SELECT id_reporte, nom_chofer, TO_CHAR(fecha, 'DD/MM/YY') AS fecha, nom_empresa, "
-            + "nom_obra, nombre_maquina, nom_supervisor, litros, kmhora, "
-            + "TO_CHAR(horario_manini, 'HH:mi') || ' a ' || TO_CHAR(horario_manfin, 'HH:mi') AS horarioMan, "
-            + "TO_CHAR(horario_tarini, 'HH:mi') || ' a ' || TO_CHAR(horario_tarfin, 'HH:mi') AS horarioTar, "
-            + "observacion FROM lnmaqui.reporte CROSS JOIN lnmaqui.idrepo id "
-            + "WHERE CAST(id.id_reporte AS VARCHAR) ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR nom_chofer ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR TO_CHAR(fecha, 'DD/MM/YY') ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR nom_empresa ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR nom_obra ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR nombre_maquina ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR nom_supervisor ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR CAST(litros AS VARCHAR) ILIKE '%" + buscaReporte.getText() + "%' "
-            + "OR kmhora ILIKE '%" + buscaReporte.getText() + "%'";
+    public void buscarReporte(JTextField buscaReporte, JTable tablaReporte) {
+        String sql = "SELECT id_reporte, nom_chofer, TO_CHAR(fecha, 'DD/MM/YY') AS fecha, nom_empresa, "
+                + "nom_obra, nombre_maquina, nom_supervisor, litros, kmhora, "
+                + "TO_CHAR(horario_manini, 'HH:mi') || ' a ' || TO_CHAR(horario_manfin, 'HH:mi') AS horarioMan, "
+                + "TO_CHAR(horario_tarini, 'HH:mi') || ' a ' || TO_CHAR(horario_tarfin, 'HH:mi') AS horarioTar, "
+                + "observacion FROM lnmaqui.reporte CROSS JOIN lnmaqui.idrepo id "
+                + "WHERE CAST(id.id_reporte AS VARCHAR) ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nom_chofer ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR TO_CHAR(fecha, 'DD/MM/YY') ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nom_empresa ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nom_obra ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nombre_maquina ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nom_supervisor ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR CAST(litros AS VARCHAR) ILIKE '%" + buscaReporte.getText() + "%' "
+                + "OR kmhora ILIKE '%" + buscaReporte.getText() + "%'";
 
-    DefaultTableModel model = (DefaultTableModel) tablaReporte.getModel();
+        DefaultTableModel model = (DefaultTableModel) tablaReporte.getModel();
 
-    try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
-        model.setRowCount(0);
+            model.setRowCount(0);
 
-        while (rs.next()) {
-            Object[] row = {rs.getInt("id_reporte"), rs.getString("nom_chofer"), rs.getString("fecha"), rs.getString("nom_empresa"), rs.getString("nom_obra"), rs.getString("nombre_maquina"), rs.getString("nom_supervisor"), rs.getString("litros"), rs.getString("kmhora"), rs.getString("horarioMan"), rs.getString("horarioTar"), rs.getString("observacion")};
-            model.addRow(row);
+            while (rs.next()) {
+                Object[] row = {rs.getInt("id_reporte"), rs.getString("nom_chofer"), rs.getString("fecha"), rs.getString("nom_empresa"), rs.getString("nom_obra"), rs.getString("nombre_maquina"), rs.getString("nom_supervisor"), rs.getString("litros"), rs.getString("kmhora"), rs.getString("horarioMan"), rs.getString("horarioTar"), rs.getString("observacion")};
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-}
 
-   
+    public void buscarPrecio(JTextField buscaReporte, JTable tablaReporte) {
+        String sql = "SELECT nombre_maquina,nombre_cliente,nombre_ob,TO_CHAR(precio,'$999G999G999') AS precio "
+                + "FROM lnmaqui.maquinaPrecio mp "
+                + "JOIN lnmaqui.maquina m ON m.id_maquina = mp.id_maquina "
+                + "JOIN lnmaqui.obra o ON o.id_obra = mp.id_maquina "
+                + "JOIN lnmaqui.cliente c ON c.id_cliente = mp.id_cliente"
+                + "WHERE nombre_maquina ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nombre_cliente ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR nombre_ob ILIKE '%" + buscaReporte.getText().trim() + "%' "
+                + "OR ,TO_CHAR(precio,'$999G999G999') ILIKE '%" + buscaReporte.getText().trim() + "%' ";
+
+        DefaultTableModel model = (DefaultTableModel) tablaReporte.getModel();
+
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+
+            model.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] row = {rs.getInt("nombre_maquina"), rs.getString("nombre_cliente"), rs.getString("nombre_ob"), rs.getString("precio")};
+                model.addRow(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     // CRUD CHOFER
     public boolean rutValido(int rut) {
@@ -454,7 +560,7 @@ public class Conexion {
 
                 if (affectedRowsChofer > 0) {
                     ResultSet generatedKeysChofer = psChofer.getGeneratedKeys();
-                    if (generatedKeysChofer.next()) {
+                    if (generatedKeysChofer.next() & !nomMaquina.isEmpty()) {
                         int idChofer = generatedKeysChofer.getInt(1);
 
                         String insertObraChoferQuery = "INSERT INTO lnmaqui.obracho(id_choo, id_obrac) VALUES (?, ?)";
@@ -463,14 +569,14 @@ public class Conexion {
                             preparedStatementObraChofer.setInt(2, idObra);
                             preparedStatementObraChofer.executeUpdate();
                         }
-
-                        String insertMaquinaChoferQuery = "INSERT INTO lnmaqui.maquinacho(id_maquinac, id_chom) VALUES (?, ?)";
-                        try (PreparedStatement preparedStatementMaquinaChofer = connection.prepareStatement(insertMaquinaChoferQuery)) {
-                            preparedStatementMaquinaChofer.setInt(1, idMaquina);
-                            preparedStatementMaquinaChofer.setInt(2, idChofer);
-                            preparedStatementMaquinaChofer.executeUpdate();
+                        if (idMaquina != -1) {
+                            String insertMaquinaChoferQuery = "INSERT INTO lnmaqui.maquinacho(id_maquinac, id_chom) VALUES (?, ?)";
+                            try (PreparedStatement preparedStatementMaquinaChofer = connection.prepareStatement(insertMaquinaChoferQuery)) {
+                                preparedStatementMaquinaChofer.setInt(1, idMaquina);
+                                preparedStatementMaquinaChofer.setInt(2, idChofer);
+                                preparedStatementMaquinaChofer.executeUpdate();
+                            }
                         }
-
                         JOptionPane.showMessageDialog(parentComponent, "Chofer agregado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
                     }
                 }
@@ -499,7 +605,49 @@ public class Conexion {
         return false;
     }
 
-    public void modificarChofer(String nombre, int run, int runAnterior, String obra, String maquina,String maquinaAnt, Component parentComponent) {
+    public boolean obraChoExiste(int id_cho) {
+        try (Connection conn = getConnection()) {
+            String query = "SELECT COUNT(*) AS count FROM lnmaqui.obraCho WHERE id_choo = ?";
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setInt(1, id_cho);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        return count == 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return false;
+        }
+        return false;
+    }
+
+    public boolean maquinaChoExiste(int id_cho) {
+        try (Connection conn = getConnection()) {
+            String query = "SELECT COUNT(*) AS count FROM lnmaqui.maquinacho WHERE id_chom = ?";
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setInt(1, id_cho);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        return count == 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return false;
+        }
+        return false;
+    }
+
+    public void modificarChofer(String nombre, int run, int runAnterior, String obra, String maquina, String maquinaAnt, Component parentComponent) {
         try (Connection connection = getConnection()) {
 
             int idCho = obtenerIdchofer(run);
@@ -515,23 +663,42 @@ public class Conexion {
                 return;
             }
 
-            if (maquinaTieneChofer(idMaquina) && !maquinaAnt.equals(maquina)){
+            if (maquinaTieneChofer(idMaquina) && !maquinaAnt.equals(maquina)) {
                 JOptionPane.showMessageDialog(parentComponent, "La máquina seleccionada ya tiene un chofer.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             } else {
-                String updateObracho = "UPDATE lnmaqui.obracho SET id_obrac = ? WHERE id_choo = ?";
-                try (PreparedStatement preparedStatementObracho = connection.prepareStatement(updateObracho)) {
-                    preparedStatementObracho.setInt(1, idObra);
-                    preparedStatementObracho.setInt(2, idCho);
-                    preparedStatementObracho.executeUpdate();
+                if (obraChoExiste(idCho)) {
+                    String updateObracho = "INSERT INTO lnmaqui.obracho (id_obrac,id_choo)VALUES (?,?)";
+                    try (PreparedStatement preparedStatementObracho = connection.prepareStatement(updateObracho)) {
+                        preparedStatementObracho.setInt(1, idObra);
+                        preparedStatementObracho.setInt(2, idCho);
+                        preparedStatementObracho.executeUpdate();
+
+                    }
+                } else {
+                    String updateObracho = "UPDATE lnmaqui.obracho SET id_obrac = ? WHERE id_choo = ?";
+                    try (PreparedStatement preparedStatementObracho = connection.prepareStatement(updateObracho)) {
+                        preparedStatementObracho.setInt(1, idObra);
+                        preparedStatementObracho.setInt(2, idCho);
+                        preparedStatementObracho.executeUpdate();
+                    }
+                }
+                if (maquinaChoExiste(idCho) & idMaquina != -1) {
+                    String updateObracho = "INSERT INTO lnmaqui.maquinacho (id_maquinac,id_chom)VALUES (?,?)";
+                    try (PreparedStatement preparedStatementObracho = connection.prepareStatement(updateObracho)) {
+                        preparedStatementObracho.setInt(1, idMaquina);
+                        preparedStatementObracho.setInt(2, idCho);
+                        preparedStatementObracho.executeUpdate();
+                    }
+                } else if (idMaquina != -1) {
+                    String updateMaquinacho = "UPDATE lnmaqui.maquinacho SET id_maquinac = ? WHERE id_chom = ?";
+                    try (PreparedStatement preparedStatementMaquinacho = connection.prepareStatement(updateMaquinacho)) {
+                        preparedStatementMaquinacho.setInt(1, idMaquina);
+                        preparedStatementMaquinacho.setInt(2, idCho);
+                        preparedStatementMaquinacho.executeUpdate();
+                    }
                 }
 
-                String updateMaquinacho = "UPDATE lnmaqui.maquinacho SET id_maquinac = ? WHERE id_chom = ?";
-                try (PreparedStatement preparedStatementMaquinacho = connection.prepareStatement(updateMaquinacho)) {
-                    preparedStatementMaquinacho.setInt(1, idMaquina);
-                    preparedStatementMaquinacho.setInt(2, idCho);
-                    preparedStatementMaquinacho.executeUpdate();
-                }
             }
 
             String updateChofer = "UPDATE lnmaqui.chofer SET rut_cho = ?, nombre_cho = ? WHERE id_cho = ?";
@@ -550,7 +717,7 @@ public class Conexion {
         }
     }
 
-    public void eliminarChofer(String rutChoo, Component parentComponent) {
+    public void eliminarChofer(String rutChoo) {
         try (Connection connection = getConnection()) {
             if (!rutChoo.isEmpty()) {
                 String query = "DELETE FROM lnmaqui.chofer WHERE rut_cho = ?";
@@ -1013,6 +1180,27 @@ public class Conexion {
         }
     }
 
+    public boolean maquinaObraExiste(int id_maquina) {
+        try (Connection conn = getConnection()) {
+            String query = "SELECT COUNT(*) AS count FROM lnmaqui.obramaquina WHERE id_maquinao = ?";
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setInt(1, id_maquina);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        return count == 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return false;
+        }
+        return false;
+    }
+
     public void modificarMaquina(String patenteAntigua, String patente, String nombre, String nombreAntiguo, String obra, String kilometros, String horometro, Component parentComponent) {
         try (Connection connection = getConnection()) {
             int idObra = obtenerIdObraPorNombre(obra);
@@ -1062,20 +1250,31 @@ public class Conexion {
                 preparedStatementMaquina.setInt(5, idMaquina);
 
                 int filasModificadasMaquina = preparedStatementMaquina.executeUpdate();
+                if (maquinaObraExiste(idMaquina)) {
+                    String sqlObraMaquina = "INSERT INTO lnmaqui.obramaquina(id_obram,id_maquinao) VALUES (?,?) ";
+                    try (PreparedStatement ps = connection.prepareStatement(sqlObraMaquina)) {
+                        ps.setInt(1, idObra);
+                        ps.setInt(2, idMaquina);
+                        ps.executeUpdate();
+                    }
 
-                String sqlObraMaquina = "UPDATE lnmaqui.obramaquina SET id_obram = ? WHERE id_maquinao = ?";
-                try (PreparedStatement preparedStatementObraMaquina = connection.prepareStatement(sqlObraMaquina)) {
-                    preparedStatementObraMaquina.setInt(1, idObra);
-                    preparedStatementObraMaquina.setInt(2, idMaquina);
+                } else {
+                    String sqlObraMaquina = "UPDATE lnmaqui.obramaquina SET id_obram = ? WHERE id_maquinao = ?";
 
-                    int filasModificadasObraMaquina = preparedStatementObraMaquina.executeUpdate();
+                    try (PreparedStatement preparedStatementObraMaquina = connection.prepareStatement(sqlObraMaquina)) {
+                        preparedStatementObraMaquina.setInt(1, idObra);
+                        preparedStatementObraMaquina.setInt(2, idMaquina);
 
-                    if (filasModificadasMaquina > 0 && filasModificadasObraMaquina > 0) {
-                        JOptionPane.showMessageDialog(parentComponent, "Máquina modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JOptionPane.showMessageDialog(parentComponent, "No se encontró la máquina para modificar.", "Error", JOptionPane.ERROR_MESSAGE);
+                        int filasModificadasObraMaquina = preparedStatementObraMaquina.executeUpdate();
+
+                        if (filasModificadasMaquina > 0 && filasModificadasObraMaquina > 0) {
+                            JOptionPane.showMessageDialog(parentComponent, "Máquina modificada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(parentComponent, "No se encontró la máquina para modificar.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -1083,4 +1282,173 @@ public class Conexion {
         }
     }
 
+    //CRUD PRECIO
+    public void eliminarPrecio(String nomMaquina) {
+        try (Connection connection = getConnection()) {
+            int idMaquina = obtenerIdMaquinaPorNombre(nomMaquina);
+            if (idMaquina != 1) {
+                String query = "DELETE FROM lnmaqui.maquinaprecio WHERE id_maquina = ?";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                    preparedStatement.setInt(1, idMaquina);
+                    preparedStatement.executeUpdate();
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean maquinaNoPrecio(int id_maquina) {
+        try (Connection conn = getConnection()) {
+            String query = "SELECT COUNT(*) AS count FROM lnmaqui.maquinaprecio WHERE id_maquina = ?";
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setInt(1, id_maquina);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        return count == 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return false;
+        }
+        return false;
+    }
+
+    public void agregarPrecio(String obra, String maquina, String cliente, String precio, Component parentComponent) {
+        try (Connection connection = getConnection()) {
+            int obraI = obtenerIdObraPorNombre(obra);
+            int maquinaI = obtenerIdMaquinaPorNombre(maquina);
+            int clienteI = obtenerIdCliente(cliente);
+            int precioI = Integer.parseInt(precio);
+            if (!maquinaNoPrecio(maquinaI)) {
+                JOptionPane.showMessageDialog(parentComponent, "Esta maquina ya esta en una obra.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String insert = "INSERT INTO lnmaqui.maquinaprecio(id_maquina,id_cliente,id_obra,precio) VALUES(?,?,?,?)";
+
+            try (PreparedStatement ps = connection.prepareStatement(insert)) {
+                ps.setInt(1, maquinaI);
+                ps.setInt(2, clienteI);
+                ps.setInt(3, obraI);
+                ps.setInt(4, precioI);
+
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(parentComponent, "Maquina agregada con éxito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(parentComponent, "Error al agregar la maquina a la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+
+            e.printStackTrace();
+
+        }
+    }
+
+    public void modificarPrecio(String obra, String obraAnt, String maquina, String cliente, String precio, Component parentComponent) {
+        try (Connection connection = getConnection()) {
+            int obraI = obtenerIdObraPorNombre(obra);
+            int maquinaI = obtenerIdMaquinaPorNombre(maquina);
+            int clienteI = obtenerIdCliente(cliente);
+            int precioI = Integer.parseInt(precio);
+
+            if (!obra.equals(obraAnt)) {
+                try (PreparedStatement ps = connection.prepareStatement("UPDATE lnmaqui.obramaquina SET id_obram = ? WHERE id_maquinao = ?")) {
+                    ps.setInt(1, obraI);
+                    ps.setInt(2, maquinaI);
+                    ps.executeUpdate();
+                }
+            }
+
+            String update = "UPDATE lnmaqui.maquinaprecio SET id_cliente = ?,id_obra = ?,precio = ? WHERE id_maquina= ?";
+            try (PreparedStatement ps = connection.prepareStatement(update)) {
+                ps.setInt(1, clienteI);
+                ps.setInt(2, obraI);
+                ps.setInt(3, precioI);
+                ps.setInt(4, maquinaI);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(parentComponent, "Precio modificado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(parentComponent, "Error al modificar el precio en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    //CRUD SUPERVISOR
+    
+        public boolean supervisorValido(int rut) {
+        try (Connection conn = getConnection()) {
+            String query = "SELECT COUNT(*) AS count FROM lnmaqui.supervisor WHERE rut_superv = ?";
+            try (PreparedStatement ps = conn.prepareStatement(query)) {
+                ps.setInt(1, rut);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt("count");
+                        return count == 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            return false;
+        }
+        return false;
+    }
+    
+    
+   public void agregarSupervisor(String obra, String empresa, String rut, String nombre, Component parentComponent) {
+        try (Connection connection = getConnection()) {
+            
+            int rutN = Integer.parseInt(rut);
+            int idObra = obtenerIdObraPorNombre(obra);
+            
+            if (idObra == -1) {
+                JOptionPane.showMessageDialog(parentComponent, "Obra no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!supervisorValido(rutN)) {
+                JOptionPane.showMessageDialog(parentComponent, "Esta supervisor ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String insertSuperv = "INSERT INTO lnmaqui.supervisor(rut_superv,nombre_su) VALUES(?,?)";
+
+            try (PreparedStatement preparedStatementMaquina = connection.prepareStatement(insertSuperv, Statement.RETURN_GENERATED_KEYS)) {
+                preparedStatementMaquina.setInt(1, rutN);
+                preparedStatementMaquina.setString(2, nombre);
+
+                int affectedRows = preparedStatementMaquina.executeUpdate();
+
+                if (affectedRows > 0) {
+                    ResultSet generatedKeys = preparedStatementMaquina.getGeneratedKeys();
+                    if (generatedKeys.next()) {
+                        int idSuperv = generatedKeys.getInt(1);
+
+                        String moficarObra = "UPDATE lnmaqui.obra SET id_superv = ? WHERE id_obra = ?";
+                        try (PreparedStatement preparedStatementObraMaquina = connection.prepareStatement(moficarObra)) {
+                            preparedStatementObraMaquina.setInt(1, idSuperv);
+                            preparedStatementObraMaquina.setInt(2, idObra);
+                            preparedStatementObraMaquina.executeUpdate();
+                        }
+
+                        JOptionPane.showMessageDialog(parentComponent, "Supervisor agregada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(parentComponent, "Error al agregar el supervisor.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
 }
