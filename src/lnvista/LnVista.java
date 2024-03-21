@@ -18,6 +18,9 @@ public class LnVista {
         
         Main f = new Main();
         f.setVisible(true);
+        
+        
+
     }
     
 }

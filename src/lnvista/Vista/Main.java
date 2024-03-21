@@ -2,9 +2,10 @@ package lnvista.Vista;
 
 import java.awt.Color;
 import java.awt.Component;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -24,21 +25,33 @@ public class Main extends javax.swing.JFrame {
         conexion.cargarEmpresasEnComboBox(jCBEmpresa);
         conexion.cargarEmpresasEnComboBox(jCBEmpresaObra);
         conexion.llenarTablaobra(tablaObra);
+        conexion.llenarTablaPrecio(tablaPrecio);
         conexion.cargarEmpresaMaq(jCBObraMaq);
         String nombreEmpresaSeleccionada = (String) jCBEmpresa.getSelectedItem();
         conexion.cargarObrasEnComboBox(nombreEmpresaSeleccionada, jCBObra);
         String JCBobra = (String) jCBObra.getSelectedItem();
         conexion.cargarMaquinasPorObra(JCBobra, jCBMaquina);
-
+        conexion.cargarEmpresasEnComboBox(jCBEmpresaPre);
+        String JCBClienP = (String) jCBEmpresaPre.getSelectedItem();
+        conexion.cargarObrasEnComboBox(JCBClienP, jCBObraPre);
+        conexion.cargarMaquina(jCBMaquinaPre);
         conexion.cargarTelefonoYCorreo(FonoEmpObra, correoEmObra, jCBEmpresaObra, this);
-
+        conexion.llenarTablaSupervisor(tablaSupervisor,jCBObraMaq);
         conexion.cargarSuperEnComboBox(jCBSupervisorObra);
         tablaReporte.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         ajustarAnchoColumnas(tablaReporte);
-
+        conexion.cargarEmpresasEnComboBox(jCBEmpresaSup);
+        String obSEmp = (String) jCBEmpresaSup.getSelectedItem();
+        conexion.cargarObrasEnComboBox(obSEmp, jCBObraSup);
         tablaChofer.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 llenarCamposDesdeFilaSeleccionada();
+            }
+        });
+
+        tablaSupervisor.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                llenarSupervisor();
             }
         });
         tablaObra.getSelectionModel().addListSelectionListener(e -> {
@@ -49,6 +62,11 @@ public class Main extends javax.swing.JFrame {
         tablaMaquina.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 FilaSeleccionadaMaquina();
+            }
+        });
+        tablaPrecio.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                llenarCamposPrecio();
             }
         });
     }
@@ -81,7 +99,22 @@ public class Main extends javax.swing.JFrame {
             column.setPreferredWidth(finalWidth);
         }
     }
+    public class ComboBoxCellRenderer extends DefaultTableCellRenderer {
+    private JComboBox<String> comboBox;
 
+    public ComboBoxCellRenderer(String[] options) {
+        comboBox = new JComboBox<>(options);
+        comboBox.setEditable(false); 
+    }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        if (value != null) {
+            comboBox.setSelectedItem(value.toString()); // Establece el item seleccionado en base al valor de la celda
+        }
+        return comboBox;
+    }
+}
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -159,6 +192,44 @@ public class Main extends javax.swing.JFrame {
         EliminarReporte = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         buscaReporte = new javax.swing.JTextField();
+        Precios = new javax.swing.JPanel();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        tablaPrecio = new javax.swing.JTable();
+        precio = new javax.swing.JTextField();
+        jPanel6 = new javax.swing.JPanel();
+        EliminarPre = new javax.swing.JLabel();
+        jPanel7 = new javax.swing.JPanel();
+        AgregarPre = new javax.swing.JLabel();
+        jCBMaquinaPre = new javax.swing.JComboBox<>();
+        jCBEmpresaPre = new javax.swing.JComboBox<>();
+        jPanel19 = new javax.swing.JPanel();
+        ModificarPre = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        jLabel21 = new javax.swing.JLabel();
+        jLabel22 = new javax.swing.JLabel();
+        buscaCho1 = new javax.swing.JTextField();
+        jLabel23 = new javax.swing.JLabel();
+        jLabel25 = new javax.swing.JLabel();
+        jCBObraPre = new javax.swing.JComboBox<>();
+        Supervisor = new javax.swing.JPanel();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        tablaSupervisor = new javax.swing.JTable();
+        runSup = new javax.swing.JTextField();
+        jPanel20 = new javax.swing.JPanel();
+        EliminarSup = new javax.swing.JLabel();
+        jPanel23 = new javax.swing.JPanel();
+        AgregarSup = new javax.swing.JLabel();
+        jCBEmpresaSup = new javax.swing.JComboBox<>();
+        jCBObraSup = new javax.swing.JComboBox<>();
+        jPanel24 = new javax.swing.JPanel();
+        ModificarSup = new javax.swing.JLabel();
+        jLabel24 = new javax.swing.JLabel();
+        jLabel28 = new javax.swing.JLabel();
+        jLabel29 = new javax.swing.JLabel();
+        buscaSup = new javax.swing.JTextField();
+        jLabel30 = new javax.swing.JLabel();
+        jLabel31 = new javax.swing.JLabel();
+        nomSupSup = new javax.swing.JTextField();
         navbar = new javax.swing.JPanel();
         Logo = new javax.swing.JLabel();
         jPanel12 = new javax.swing.JPanel();
@@ -170,6 +241,8 @@ public class Main extends javax.swing.JFrame {
         jPanel17 = new javax.swing.JPanel();
         selectReporte = new javax.swing.JLabel();
         jPanel21 = new javax.swing.JPanel();
+        selectPrecio = new javax.swing.JLabel();
+        jPanel22 = new javax.swing.JPanel();
         selectSupervisor = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -190,7 +263,7 @@ public class Main extends javax.swing.JFrame {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Run", "Nombre", "Empresa", "Obra", "Maquina"
+                "Run", "Nombre", "Empresa", "Obra", "Máquina"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -208,6 +281,7 @@ public class Main extends javax.swing.JFrame {
             tablaChofer.getColumnModel().getColumn(2).setResizable(false);
             tablaChofer.getColumnModel().getColumn(3).setResizable(false);
             tablaChofer.getColumnModel().getColumn(4).setResizable(false);
+            tablaChofer.getColumnModel().getColumn(4).setHeaderValue("Máquina");
         }
 
         Chofer.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 780, 440));
@@ -629,10 +703,12 @@ public class Main extends javax.swing.JFrame {
         if (tablaObra.getColumnModel().getColumnCount() > 0) {
             tablaObra.getColumnModel().getColumn(0).setResizable(false);
             tablaObra.getColumnModel().getColumn(1).setResizable(false);
+            tablaObra.getColumnModel().getColumn(1).setCellEditor(null);
             tablaObra.getColumnModel().getColumn(2).setResizable(false);
             tablaObra.getColumnModel().getColumn(3).setResizable(false);
             tablaObra.getColumnModel().getColumn(4).setResizable(false);
             tablaObra.getColumnModel().getColumn(5).setResizable(false);
+            tablaObra.getColumnModel().getColumn(5).setCellEditor(null);
         }
 
         Obra.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 780, 370));
@@ -823,17 +899,17 @@ public class Main extends javax.swing.JFrame {
 
         tablaReporte.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "N° Reporte", "Chofer", "Fecha", "Empresa", "Obra", "Maquina", "Supervisor", "Litros", "Km/Hora", "Horario Mañana", "Horario Tarde", "Observacion"
+                "Chofer", "Fecha", "Empresa", "Obra", "Máquina", "Supervisor", "Litros", "Km/Hora", "Horario Mañana", "Horario Tarde", "Observacion"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false, false, false, false, false
+                false, false, false, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -854,7 +930,6 @@ public class Main extends javax.swing.JFrame {
             tablaReporte.getColumnModel().getColumn(8).setResizable(false);
             tablaReporte.getColumnModel().getColumn(9).setResizable(false);
             tablaReporte.getColumnModel().getColumn(10).setResizable(false);
-            tablaReporte.getColumnModel().getColumn(11).setResizable(false);
         }
 
         Reporte.add(jScrollPane4, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 780, 440));
@@ -904,6 +979,390 @@ public class Main extends javax.swing.JFrame {
         Reporte.add(buscaReporte, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 490, 230, 30));
 
         jTabbedPane1.addTab("tab1", Reporte);
+
+        Precios.setPreferredSize(new java.awt.Dimension(800, 600));
+        Precios.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jScrollPane5.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        tablaPrecio.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Maquina", "Empresa", "Obra", "Precio"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane5.setViewportView(tablaPrecio);
+        if (tablaPrecio.getColumnModel().getColumnCount() > 0) {
+            tablaPrecio.getColumnModel().getColumn(0).setResizable(false);
+            tablaPrecio.getColumnModel().getColumn(1).setResizable(false);
+            tablaPrecio.getColumnModel().getColumn(2).setResizable(false);
+            tablaPrecio.getColumnModel().getColumn(3).setResizable(false);
+        }
+
+        Precios.add(jScrollPane5, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 780, 440));
+
+        precio.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        precio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                precioActionPerformed(evt);
+            }
+        });
+        precio.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                precioKeyPressed(evt);
+            }
+        });
+        Precios.add(precio, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 540, 172, 30));
+
+        jPanel6.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel6.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel6.setVerifyInputWhenFocusTarget(false);
+
+        EliminarPre.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        EliminarPre.setForeground(new java.awt.Color(255, 255, 255));
+        EliminarPre.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        EliminarPre.setText("Eliminar");
+        EliminarPre.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                EliminarPreMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(EliminarPre, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(EliminarPre, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        Precios.add(jPanel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 540, -1, 30));
+
+        jPanel7.setBackground(new java.awt.Color(51, 153, 0));
+        jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel7.setPreferredSize(new java.awt.Dimension(65, 30));
+
+        AgregarPre.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        AgregarPre.setForeground(new java.awt.Color(255, 255, 255));
+        AgregarPre.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        AgregarPre.setText("Agregar");
+        AgregarPre.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                AgregarPreMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(AgregarPre, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(AgregarPre, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        Precios.add(jPanel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 540, 71, -1));
+
+        jCBMaquinaPre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCBMaquinaPre.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jCBMaquinaPre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBMaquinaPreActionPerformed(evt);
+            }
+        });
+        Precios.add(jCBMaquinaPre, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 490, 172, 30));
+
+        jCBEmpresaPre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCBEmpresaPre.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jCBEmpresaPre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBEmpresaPreActionPerformed(evt);
+            }
+        });
+        Precios.add(jCBEmpresaPre, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 490, 172, 30));
+
+        jPanel19.setBackground(new java.awt.Color(0, 0, 153));
+        jPanel19.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel19.setPreferredSize(new java.awt.Dimension(112, 53));
+
+        ModificarPre.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        ModificarPre.setForeground(new java.awt.Color(255, 255, 255));
+        ModificarPre.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        ModificarPre.setText("Modificar");
+        ModificarPre.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ModificarPreMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel19Layout = new javax.swing.GroupLayout(jPanel19);
+        jPanel19.setLayout(jPanel19Layout);
+        jPanel19Layout.setHorizontalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(ModificarPre, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+        );
+        jPanel19Layout.setVerticalGroup(
+            jPanel19Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(ModificarPre, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+        );
+
+        Precios.add(jPanel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 540, 71, 30));
+
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel9.setText("Buscar");
+        Precios.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, -1, -1));
+
+        jLabel21.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel21.setText("Maquina:");
+        Precios.add(jLabel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 470, -1, -1));
+
+        jLabel22.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel22.setText("Empresa");
+        Precios.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 470, -1, -1));
+
+        buscaCho1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        buscaCho1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscaCho1ActionPerformed(evt);
+            }
+        });
+        buscaCho1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                buscaCho1KeyPressed(evt);
+            }
+        });
+        Precios.add(buscaCho1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 490, 230, 30));
+
+        jLabel23.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel23.setText("Precio");
+        Precios.add(jLabel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 520, -1, -1));
+
+        jLabel25.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel25.setText("Obra");
+        Precios.add(jLabel25, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 470, -1, -1));
+
+        jCBObraPre.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCBObraPre.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jCBObraPre.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBObraPreActionPerformed(evt);
+            }
+        });
+        Precios.add(jCBObraPre, new org.netbeans.lib.awtextra.AbsoluteConstraints(610, 490, 166, 30));
+
+        jTabbedPane1.addTab("tab1", Precios);
+
+        Supervisor.setPreferredSize(new java.awt.Dimension(800, 600));
+        Supervisor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jScrollPane6.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        tablaSupervisor.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Run", "Nombre", "Empresa", "Obra"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane6.setViewportView(tablaSupervisor);
+        if (tablaSupervisor.getColumnModel().getColumnCount() > 0) {
+            tablaSupervisor.getColumnModel().getColumn(0).setResizable(false);
+            tablaSupervisor.getColumnModel().getColumn(1).setResizable(false);
+            tablaSupervisor.getColumnModel().getColumn(2).setResizable(false);
+            tablaSupervisor.getColumnModel().getColumn(3).setResizable(false);
+        }
+
+        Supervisor.add(jScrollPane6, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 20, 780, 440));
+
+        runSup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        runSup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                runSupActionPerformed(evt);
+            }
+        });
+        runSup.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                runSupKeyPressed(evt);
+            }
+        });
+        Supervisor.add(runSup, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 540, 172, 30));
+
+        jPanel20.setBackground(new java.awt.Color(153, 0, 0));
+        jPanel20.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel20.setVerifyInputWhenFocusTarget(false);
+
+        EliminarSup.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        EliminarSup.setForeground(new java.awt.Color(255, 255, 255));
+        EliminarSup.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        EliminarSup.setText("Eliminar");
+        EliminarSup.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                EliminarSupMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel20Layout = new javax.swing.GroupLayout(jPanel20);
+        jPanel20.setLayout(jPanel20Layout);
+        jPanel20Layout.setHorizontalGroup(
+            jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(EliminarSup, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+        );
+        jPanel20Layout.setVerticalGroup(
+            jPanel20Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(EliminarSup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        Supervisor.add(jPanel20, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 540, -1, 30));
+
+        jPanel23.setBackground(new java.awt.Color(51, 153, 0));
+        jPanel23.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel23.setPreferredSize(new java.awt.Dimension(65, 30));
+
+        AgregarSup.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        AgregarSup.setForeground(new java.awt.Color(255, 255, 255));
+        AgregarSup.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        AgregarSup.setText("Agregar");
+        AgregarSup.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                AgregarSupMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel23Layout = new javax.swing.GroupLayout(jPanel23);
+        jPanel23.setLayout(jPanel23Layout);
+        jPanel23Layout.setHorizontalGroup(
+            jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(AgregarSup, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+        );
+        jPanel23Layout.setVerticalGroup(
+            jPanel23Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(AgregarSup, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        Supervisor.add(jPanel23, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 540, 71, -1));
+
+        jCBEmpresaSup.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCBEmpresaSup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jCBEmpresaSup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBEmpresaSupActionPerformed(evt);
+            }
+        });
+        Supervisor.add(jCBEmpresaSup, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 490, 172, 30));
+
+        jCBObraSup.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jCBObraSup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jCBObraSup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCBObraSupActionPerformed(evt);
+            }
+        });
+        Supervisor.add(jCBObraSup, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 490, 172, 30));
+
+        jPanel24.setBackground(new java.awt.Color(0, 0, 153));
+        jPanel24.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel24.setPreferredSize(new java.awt.Dimension(112, 53));
+
+        ModificarSup.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        ModificarSup.setForeground(new java.awt.Color(255, 255, 255));
+        ModificarSup.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        ModificarSup.setText("Modificar");
+        ModificarSup.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ModificarSupMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel24Layout = new javax.swing.GroupLayout(jPanel24);
+        jPanel24.setLayout(jPanel24Layout);
+        jPanel24Layout.setHorizontalGroup(
+            jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(ModificarSup, javax.swing.GroupLayout.DEFAULT_SIZE, 69, Short.MAX_VALUE)
+        );
+        jPanel24Layout.setVerticalGroup(
+            jPanel24Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(ModificarSup, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 28, Short.MAX_VALUE)
+        );
+
+        Supervisor.add(jPanel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 540, 71, 30));
+
+        jLabel24.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel24.setText("Buscar");
+        Supervisor.add(jLabel24, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 470, -1, -1));
+
+        jLabel28.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel28.setText("Empresa:");
+        Supervisor.add(jLabel28, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 470, -1, -1));
+
+        jLabel29.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel29.setText("Obra:");
+        Supervisor.add(jLabel29, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 470, -1, -1));
+
+        buscaSup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        buscaSup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buscaSupActionPerformed(evt);
+            }
+        });
+        buscaSup.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                buscaSupKeyPressed(evt);
+            }
+        });
+        Supervisor.add(buscaSup, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 490, 230, 30));
+
+        jLabel30.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel30.setText("Run:");
+        Supervisor.add(jLabel30, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 520, -1, -1));
+
+        jLabel31.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        jLabel31.setText("Nombre:");
+        Supervisor.add(jLabel31, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 520, 62, -1));
+
+        nomSupSup.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        nomSupSup.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nomSupSupActionPerformed(evt);
+            }
+        });
+        nomSupSup.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                nomSupSupKeyPressed(evt);
+            }
+        });
+        Supervisor.add(nomSupSup, new org.netbeans.lib.awtextra.AbsoluteConstraints(430, 540, 172, 30));
+
+        jTabbedPane1.addTab("tab1", Supervisor);
 
         getContentPane().add(jTabbedPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, -40, 800, 640));
 
@@ -1025,6 +1484,41 @@ public class Main extends javax.swing.JFrame {
 
         jPanel21.setBackground(new java.awt.Color(18, 52, 85));
 
+        selectPrecio.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
+        selectPrecio.setForeground(new java.awt.Color(255, 255, 255));
+        selectPrecio.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        selectPrecio.setText("PRECIO");
+        selectPrecio.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                selectPrecioMouseClicked(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel21Layout = new javax.swing.GroupLayout(jPanel21);
+        jPanel21.setLayout(jPanel21Layout);
+        jPanel21Layout.setHorizontalGroup(
+            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 200, Short.MAX_VALUE)
+            .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel21Layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(selectPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+        jPanel21Layout.setVerticalGroup(
+            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 40, Short.MAX_VALUE)
+            .addGroup(jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel21Layout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(selectPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
+        );
+
+        navbar.add(jPanel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 200, 40));
+
+        jPanel22.setBackground(new java.awt.Color(18, 52, 85));
+
         selectSupervisor.setFont(new java.awt.Font("Segoe UI", 1, 12)); // NOI18N
         selectSupervisor.setForeground(new java.awt.Color(255, 255, 255));
         selectSupervisor.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -1035,21 +1529,21 @@ public class Main extends javax.swing.JFrame {
             }
         });
 
-        javax.swing.GroupLayout jPanel21Layout = new javax.swing.GroupLayout(jPanel21);
-        jPanel21.setLayout(jPanel21Layout);
-        jPanel21Layout.setHorizontalGroup(
-            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout jPanel22Layout = new javax.swing.GroupLayout(jPanel22);
+        jPanel22.setLayout(jPanel22Layout);
+        jPanel22Layout.setHorizontalGroup(
+            jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(selectSupervisor, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
         );
-        jPanel21Layout.setVerticalGroup(
-            jPanel21Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel21Layout.createSequentialGroup()
+        jPanel22Layout.setVerticalGroup(
+            jPanel22Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel22Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(selectSupervisor, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(52, 52, 52))
         );
 
-        navbar.add(jPanel21, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 380, 200, 40));
+        navbar.add(jPanel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 420, 200, 40));
 
         getContentPane().add(navbar, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 200, 600));
 
@@ -1068,6 +1562,8 @@ public class Main extends javax.swing.JFrame {
         jPanel17.setBackground(azul);
         selectReporte.setForeground(Color.WHITE);
         jPanel21.setBackground(azul);
+        selectPrecio.setForeground(Color.WHITE);
+        jPanel22.setBackground(azul);
         selectSupervisor.setForeground(Color.WHITE);
     }//GEN-LAST:event_selectChoferMouseClicked
 
@@ -1082,6 +1578,8 @@ public class Main extends javax.swing.JFrame {
         jPanel17.setBackground(azul);
         selectReporte.setForeground(Color.WHITE);
         jPanel21.setBackground(azul);
+        selectPrecio.setForeground(Color.WHITE);
+        jPanel22.setBackground(azul);
         selectSupervisor.setForeground(Color.WHITE);
     }//GEN-LAST:event_selectCamionesMouseClicked
 
@@ -1098,6 +1596,8 @@ public class Main extends javax.swing.JFrame {
         jPanel17.setBackground(azul);
         selectReporte.setForeground(Color.WHITE);
         jPanel21.setBackground(azul);
+        selectPrecio.setForeground(Color.WHITE);
+        jPanel22.setBackground(azul);
         selectSupervisor.setForeground(Color.WHITE);
     }//GEN-LAST:event_selectObraMouseClicked
 
@@ -1112,7 +1612,9 @@ public class Main extends javax.swing.JFrame {
         selectObra.setForeground(Color.WHITE);
         jPanel13.setBackground(azul);
         jPanel21.setBackground(azul);
-        selectSupervisor.setForeground(Color.WHITE); 
+        selectPrecio.setForeground(Color.WHITE);
+        jPanel22.setBackground(azul);
+        selectSupervisor.setForeground(Color.WHITE);
      }//GEN-LAST:event_selectReporteMouseClicked
 
     private void buscaReporteKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaReporteKeyPressed
@@ -1195,14 +1697,14 @@ public class Main extends javax.swing.JFrame {
         int filaSeleccionada = tablaChofer.getSelectedRow();
         Object runAObj = tablaChofer.getValueAt(filaSeleccionada, 0);
         Object maqAObj = tablaChofer.getValueAt(filaSeleccionada, 4);
-        String runA = runAObj.toString();
-        String maqA = maqAObj.toString();
+        String runA = (runAObj != null) ? runAObj.toString() : "";
+        String maqA = (maqAObj != null) ? maqAObj.toString() : "";
         int run = Integer.parseInt(runCho.getText());
         int runAnt = Integer.parseInt(runA);
         String nombre = nomEmp.getText();
         String maquina = (String) jCBMaquina.getSelectedItem();
         String obra = (String) jCBObra.getSelectedItem();
-        conexion.modificarChofer(nombre,run, runAnt,obra,maquina,maqA, this);
+        conexion.modificarChofer(nombre, run, runAnt, obra, maquina, maqA, this);
         conexion.llenarTablaChofer(tablaChofer);
     }//GEN-LAST:event_ModificarChMouseClicked
 
@@ -1342,8 +1844,8 @@ public class Main extends javax.swing.JFrame {
         conexion.cargarMaquinasPorObra(JCBobra, jCBMaquina);
     }//GEN-LAST:event_AgregarMaqMouseClicked
 
-    private void selectSupervisorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_selectSupervisorMouseClicked
-        jTabbedPane1.setSelectedIndex(3);
+    private void selectPrecioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_selectPrecioMouseClicked
+        jTabbedPane1.setSelectedIndex(4);
         jPanel17.setBackground(azul);
         selectReporte.setForeground(Color.WHITE);
         selectCamiones.setForeground(Color.WHITE);
@@ -1353,10 +1855,133 @@ public class Main extends javax.swing.JFrame {
         selectObra.setForeground(Color.WHITE);
         jPanel13.setBackground(azul);
         jPanel21.setBackground(Color.WHITE);
-        selectSupervisor.setForeground(Color.BLACK); 
+        selectPrecio.setForeground(Color.BLACK);
+        jPanel22.setBackground(azul);
+        selectSupervisor.setForeground(Color.WHITE);
 
+    }//GEN-LAST:event_selectPrecioMouseClicked
 
+    private void precioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_precioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_precioActionPerformed
+
+    private void precioKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_precioKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_precioKeyPressed
+
+    private void EliminarPreMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_EliminarPreMouseClicked
+        eliminarFilaSeleccionadaPre();
+    }//GEN-LAST:event_EliminarPreMouseClicked
+
+    private void AgregarPreMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AgregarPreMouseClicked
+        String precioo = precio.getText();
+        String clientee = (String) jCBEmpresaPre.getSelectedItem();
+        String maquinaa = (String) jCBMaquinaPre.getSelectedItem();
+        String obraa = (String) jCBObraPre.getSelectedItem();
+        conexion.agregarPrecio(obraa, maquinaa, clientee, precioo, this);
+        conexion.llenarTablaPrecio(tablaPrecio);
+    }//GEN-LAST:event_AgregarPreMouseClicked
+
+    private void jCBMaquinaPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBMaquinaPreActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCBMaquinaPreActionPerformed
+
+    private void jCBEmpresaPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBEmpresaPreActionPerformed
+        String empresa = (String) jCBEmpresaPre.getSelectedItem();
+        conexion.cargarObrasEnComboBox(empresa, jCBObraPre);
+    }//GEN-LAST:event_jCBEmpresaPreActionPerformed
+
+    private void ModificarPreMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ModificarPreMouseClicked
+        int filaSeleccionada = tablaPrecio.getSelectedRow();
+        String obraAnt = (String) tablaPrecio.getValueAt(filaSeleccionada, 2);
+        String obra = (String) jCBObraPre.getSelectedItem();
+        String maquina = (String) jCBMaquinaPre.getSelectedItem();
+
+        String cliente = (String) jCBEmpresaPre.getSelectedItem();
+        String precioo = precio.getText();
+        conexion.modificarPrecio(obra, obraAnt, maquina, cliente, precioo, this);
+        conexion.llenarTablaMaquina(tablaMaquina);
+        conexion.llenarTablaPrecio(tablaPrecio);
+
+    }//GEN-LAST:event_ModificarPreMouseClicked
+
+    private void buscaCho1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscaCho1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_buscaCho1ActionPerformed
+
+    private void buscaCho1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaCho1KeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_buscaCho1KeyPressed
+
+    private void jCBObraPreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBObraPreActionPerformed
+    }//GEN-LAST:event_jCBObraPreActionPerformed
+
+    private void selectSupervisorMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_selectSupervisorMouseClicked
+        jTabbedPane1.setSelectedIndex(5);
+        jPanel17.setBackground(azul);
+        selectReporte.setForeground(Color.WHITE);
+        selectCamiones.setForeground(Color.WHITE);
+        jPanel10.setBackground(azul);
+        jPanel12.setBackground(azul);
+        selectChofer.setForeground(Color.WHITE);
+        selectObra.setForeground(Color.WHITE);
+        jPanel13.setBackground(azul);
+        selectPrecio.setForeground(Color.WHITE);
+        jPanel21.setBackground(azul);
+        jPanel22.setBackground(Color.WHITE);
+        selectSupervisor.setForeground(Color.BLACK);
     }//GEN-LAST:event_selectSupervisorMouseClicked
+
+    private void runSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_runSupActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_runSupActionPerformed
+
+    private void runSupKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_runSupKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_runSupKeyPressed
+
+    private void EliminarSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_EliminarSupMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_EliminarSupMouseClicked
+
+    private void AgregarSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AgregarSupMouseClicked
+        String obra = (String) jCBObraSup.getSelectedItem();
+        String empresa = (String) jCBEmpresaSup.getSelectedItem();
+        String rut = runSup.getText();
+        String nombre = nomSupSup.getText();
+        conexion.agregarSupervisor(obra, empresa, rut, nombre, this);
+        conexion.cargarSuperEnComboBox(jCBSupervisorObra);
+        conexion.llenarTablaobra(tablaObra);
+    }//GEN-LAST:event_AgregarSupMouseClicked
+
+    private void jCBEmpresaSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBEmpresaSupActionPerformed
+        String empresa = (String) jCBEmpresaSup.getSelectedItem();
+        conexion.cargarObrasEnComboBox(empresa, jCBObraSup);
+    }//GEN-LAST:event_jCBEmpresaSupActionPerformed
+
+    private void jCBObraSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBObraSupActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCBObraSupActionPerformed
+
+    private void ModificarSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ModificarSupMouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ModificarSupMouseClicked
+
+    private void buscaSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscaSupActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_buscaSupActionPerformed
+
+    private void buscaSupKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaSupKeyPressed
+        conexion.buscarSuper(buscaSup, tablaSupervisor,jCBObraMaq);
+    }//GEN-LAST:event_buscaSupKeyPressed
+
+    private void nomSupSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nomSupSupActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nomSupSupActionPerformed
+
+    private void nomSupSupKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomSupSupKeyPressed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_nomSupSupKeyPressed
 
     private void eliminarFilaSeleccionadaCho() {
         int filaSeleccionada = tablaChofer.getSelectedRow();
@@ -1377,8 +2002,35 @@ public class Main extends javax.swing.JFrame {
             );
 
             if (confirmacion == JOptionPane.YES_OPTION) {
-                conexion.eliminarChofer(run, this);
+                conexion.eliminarChofer(run);
                 conexion.llenarTablaChofer(tablaChofer);
+                JOptionPane.showMessageDialog(null, "Fila eliminada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione una fila para eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void eliminarFilaSeleccionadaPre() {
+        int filaSeleccionada = tablaPrecio.getSelectedRow();
+        String nomMaquina = (String) tablaPrecio.getValueAt(filaSeleccionada, 0);
+
+        if (filaSeleccionada != -1) {
+            Object[] options = {"Sí", "No"};
+            int confirmacion = JOptionPane.showOptionDialog(
+                    this,
+                    "¿Estás seguro de eliminar esta fila?",
+                    "Confirmar eliminación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[1]
+            );
+
+            if (confirmacion == JOptionPane.YES_OPTION) {
+                conexion.eliminarPrecio(nomMaquina);
+                conexion.llenarTablaPrecio(tablaPrecio);
                 JOptionPane.showMessageDialog(null, "Fila eliminada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             }
         } else {
@@ -1481,6 +2133,42 @@ public class Main extends javax.swing.JFrame {
         }
     }
 
+    private void llenarSupervisor() {
+        int filaSeleccionada = tablaSupervisor.getSelectedRow();
+
+        if (filaSeleccionada != -1) {
+            // Obtener datos de la fila seleccionada
+            String runSupe = String.valueOf(tablaSupervisor.getValueAt(filaSeleccionada, 0));
+            String nomSupe = (String) tablaSupervisor.getValueAt(filaSeleccionada, 1);
+            String nombreEmpresaSeleccionada = (String) tablaSupervisor.getValueAt(filaSeleccionada, 2);
+            String nombreObraSeleccionada = (String) tablaSupervisor.getValueAt(filaSeleccionada, 3);
+
+            // Llenar JTextField
+            runSup.setText(runSupe);
+            nomSupSup.setText(nomSupe);
+
+            jCBEmpresaSup.setSelectedItem(nombreEmpresaSeleccionada);
+            jCBObraSup.setSelectedItem(nombreObraSeleccionada);
+        }
+    }
+
+    private void llenarCamposPrecio() {
+        int filaSeleccionada = tablaPrecio.getSelectedRow();
+
+        if (filaSeleccionada != -1) {
+            String Maquinaa = (String) tablaPrecio.getValueAt(filaSeleccionada, 0);
+            String Empresa = (String) tablaPrecio.getValueAt(filaSeleccionada, 1);
+            String Obraa = (String) tablaPrecio.getValueAt(filaSeleccionada, 2);
+            String Precio = String.valueOf(tablaPrecio.getValueAt(filaSeleccionada, 3));
+            String preciof = Precio.replaceAll("[^0-9]", "");
+            // Llenar JTextField
+            jCBMaquinaPre.setSelectedItem(Maquinaa);
+            jCBEmpresaPre.setSelectedItem(Empresa);
+            jCBObraPre.setSelectedItem(Obraa);
+            precio.setText(preciof);
+        }
+    }
+
     private void llenarCamposDesdeFilaSeleccionadaObra() {
         int filaSeleccionada = tablaObra.getSelectedRow();
 
@@ -1539,31 +2227,46 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JLabel AgregarCh;
     private javax.swing.JLabel AgregarMaq;
     private javax.swing.JLabel AgregarObra;
+    private javax.swing.JLabel AgregarPre;
+    private javax.swing.JLabel AgregarSup;
     private javax.swing.JPanel Chofer;
     private javax.swing.JLabel EliminarCh;
     private javax.swing.JLabel EliminarMaq;
     private javax.swing.JLabel EliminarObra;
+    private javax.swing.JLabel EliminarPre;
     private javax.swing.JLabel EliminarReporte;
+    private javax.swing.JLabel EliminarSup;
     private javax.swing.JTextField FonoEmpObra;
     private javax.swing.JLabel Logo;
     private javax.swing.JPanel Maquina;
     private javax.swing.JLabel ModificarCh;
     private javax.swing.JLabel ModificarMaq;
     private javax.swing.JLabel ModificarObra;
+    private javax.swing.JLabel ModificarPre;
+    private javax.swing.JLabel ModificarSup;
     private javax.swing.JPanel Obra;
+    private javax.swing.JPanel Precios;
     private javax.swing.JPanel Reporte;
+    private javax.swing.JPanel Supervisor;
     private javax.swing.JTextField buscaCho;
+    private javax.swing.JTextField buscaCho1;
     private javax.swing.JTextField buscaMaquina;
     private javax.swing.JTextField buscaReporte;
+    private javax.swing.JTextField buscaSup;
     private javax.swing.JTextField buscatodoObra;
     private javax.swing.JTextField correoEmObra;
     private javax.swing.JTextField descObra;
     private javax.swing.JTextField horometroMaq;
     private javax.swing.JComboBox<String> jCBEmpresa;
     private javax.swing.JComboBox<String> jCBEmpresaObra;
+    private javax.swing.JComboBox<String> jCBEmpresaPre;
+    private javax.swing.JComboBox<String> jCBEmpresaSup;
     private javax.swing.JComboBox<String> jCBMaquina;
+    private javax.swing.JComboBox<String> jCBMaquinaPre;
     private javax.swing.JComboBox<String> jCBObra;
     private javax.swing.JComboBox<String> jCBObraMaq;
+    private javax.swing.JComboBox<String> jCBObraPre;
+    private javax.swing.JComboBox<String> jCBObraSup;
     private javax.swing.JComboBox<String> jCBSupervisorObra;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1577,14 +2280,24 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel21;
+    private javax.swing.JLabel jLabel22;
+    private javax.swing.JLabel jLabel23;
+    private javax.swing.JLabel jLabel24;
+    private javax.swing.JLabel jLabel25;
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
+    private javax.swing.JLabel jLabel28;
+    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel30;
+    private javax.swing.JLabel jLabel31;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel11;
     private javax.swing.JPanel jPanel12;
@@ -1594,32 +2307,47 @@ public class Main extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel16;
     private javax.swing.JPanel jPanel17;
     private javax.swing.JPanel jPanel18;
+    private javax.swing.JPanel jPanel19;
+    private javax.swing.JPanel jPanel20;
     private javax.swing.JPanel jPanel21;
+    private javax.swing.JPanel jPanel22;
+    private javax.swing.JPanel jPanel23;
+    private javax.swing.JPanel jPanel24;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
+    private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField kilometrosMaq;
     private javax.swing.JPanel navbar;
     private javax.swing.JTextField nomEmp;
     private javax.swing.JTextField nomObraObra;
+    private javax.swing.JTextField nomSupSup;
     private javax.swing.JTextField nombreMaquinaMaq;
     private javax.swing.JTextField patenteMaq;
+    private javax.swing.JTextField precio;
     private javax.swing.JTextField runCho;
+    private javax.swing.JTextField runSup;
     private javax.swing.JLabel selectCamiones;
     private javax.swing.JLabel selectChofer;
     private javax.swing.JLabel selectObra;
+    private javax.swing.JLabel selectPrecio;
     private javax.swing.JLabel selectReporte;
     private javax.swing.JLabel selectSupervisor;
     private javax.swing.JTable tablaChofer;
     private javax.swing.JTable tablaMaquina;
     private javax.swing.JTable tablaObra;
+    private javax.swing.JTable tablaPrecio;
     private javax.swing.JTable tablaReporte;
+    private javax.swing.JTable tablaSupervisor;
     // End of variables declaration//GEN-END:variables
 }
