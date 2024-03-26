@@ -2,10 +2,8 @@ package lnvista.Vista;
 
 import java.awt.Color;
 import java.awt.Component;
-import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -36,7 +34,7 @@ public class Main extends javax.swing.JFrame {
         conexion.cargarObrasEnComboBox(JCBClienP, jCBObraPre);
         conexion.cargarMaquina(jCBMaquinaPre);
         conexion.cargarTelefonoYCorreo(FonoEmpObra, correoEmObra, jCBEmpresaObra, this);
-        conexion.llenarTablaSupervisor(tablaSupervisor,jCBObraMaq);
+        conexion.llenarTablaSupervisor(tablaSupervisor);
         conexion.cargarSuperEnComboBox(jCBSupervisorObra);
         tablaReporte.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         ajustarAnchoColumnas(tablaReporte);
@@ -48,7 +46,7 @@ public class Main extends javax.swing.JFrame {
                 llenarCamposDesdeFilaSeleccionada();
             }
         });
-
+        
         tablaSupervisor.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 llenarSupervisor();
@@ -69,6 +67,9 @@ public class Main extends javax.swing.JFrame {
                 llenarCamposPrecio();
             }
         });
+        
+
+
     }
 
     private void ajustarAnchoColumnas(JTable table) {
@@ -99,22 +100,8 @@ public class Main extends javax.swing.JFrame {
             column.setPreferredWidth(finalWidth);
         }
     }
-    public class ComboBoxCellRenderer extends DefaultTableCellRenderer {
-    private JComboBox<String> comboBox;
+    
 
-    public ComboBoxCellRenderer(String[] options) {
-        comboBox = new JComboBox<>(options);
-        comboBox.setEditable(false); 
-    }
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        if (value != null) {
-            comboBox.setSelectedItem(value.toString()); // Establece el item seleccionado en base al valor de la celda
-        }
-        return comboBox;
-    }
-}
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1301,6 +1288,9 @@ public class Main extends javax.swing.JFrame {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 ModificarSupMouseClicked(evt);
             }
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                ModificarSupMouseEntered(evt);
+            }
         });
 
         javax.swing.GroupLayout jPanel24Layout = new javax.swing.GroupLayout(jPanel24);
@@ -1941,7 +1931,8 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_runSupKeyPressed
 
     private void EliminarSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_EliminarSupMouseClicked
-        // TODO add your handling code here:
+        eliminarFilaSeleccionadaSupervi();
+
     }//GEN-LAST:event_EliminarSupMouseClicked
 
     private void AgregarSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_AgregarSupMouseClicked
@@ -1952,6 +1943,7 @@ public class Main extends javax.swing.JFrame {
         conexion.agregarSupervisor(obra, empresa, rut, nombre, this);
         conexion.cargarSuperEnComboBox(jCBSupervisorObra);
         conexion.llenarTablaobra(tablaObra);
+        conexion.llenarTablaSupervisor(tablaSupervisor);
     }//GEN-LAST:event_AgregarSupMouseClicked
 
     private void jCBEmpresaSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCBEmpresaSupActionPerformed
@@ -1964,7 +1956,17 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_jCBObraSupActionPerformed
 
     private void ModificarSupMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ModificarSupMouseClicked
-        // TODO add your handling code here:
+        int filaSeleccionada = tablaSupervisor.getSelectedRow();
+        String obraAnt = (String) tablaSupervisor.getValueAt(filaSeleccionada, 3);
+        String obra = (String) jCBObraSup.getSelectedItem();
+        String nombreSup = nomSupSup.getText();
+        int rutSupAnt = (int) tablaSupervisor.getValueAt(filaSeleccionada, 0);
+        int rutSup = Integer.parseInt(runSup.getText());
+
+        conexion.modificarSupervisor(obra, obraAnt, nombreSup, rutSupAnt, rutSup, this);
+        conexion.cargarSuperEnComboBox(jCBSupervisorObra);
+        conexion.llenarTablaobra(tablaObra);
+        conexion.llenarTablaSupervisor(tablaSupervisor);
     }//GEN-LAST:event_ModificarSupMouseClicked
 
     private void buscaSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buscaSupActionPerformed
@@ -1972,7 +1974,7 @@ public class Main extends javax.swing.JFrame {
     }//GEN-LAST:event_buscaSupActionPerformed
 
     private void buscaSupKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_buscaSupKeyPressed
-        conexion.buscarSuper(buscaSup, tablaSupervisor,jCBObraMaq);
+        conexion.buscarSuper(buscaSup, tablaSupervisor, jCBObraMaq);
     }//GEN-LAST:event_buscaSupKeyPressed
 
     private void nomSupSupActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nomSupSupActionPerformed
@@ -1982,6 +1984,10 @@ public class Main extends javax.swing.JFrame {
     private void nomSupSupKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nomSupSupKeyPressed
         // TODO add your handling code here:
     }//GEN-LAST:event_nomSupSupKeyPressed
+
+    private void ModificarSupMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ModificarSupMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_ModificarSupMouseEntered
 
     private void eliminarFilaSeleccionadaCho() {
         int filaSeleccionada = tablaChofer.getSelectedRow();
@@ -2031,6 +2037,33 @@ public class Main extends javax.swing.JFrame {
             if (confirmacion == JOptionPane.YES_OPTION) {
                 conexion.eliminarPrecio(nomMaquina);
                 conexion.llenarTablaPrecio(tablaPrecio);
+                JOptionPane.showMessageDialog(null, "Fila eliminada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Seleccione una fila para eliminar.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void eliminarFilaSeleccionadaSupervi() {
+        int filaSeleccionada = tablaSupervisor.getSelectedRow();
+        Integer rutSupp = (Integer) tablaSupervisor.getValueAt(filaSeleccionada, 0);
+        String rutSup = String.valueOf(rutSupp);
+        if (filaSeleccionada != -1) {
+            Object[] options = {"Sí", "No"};
+            int confirmacion = JOptionPane.showOptionDialog(
+                    this,
+                    "¿Estás seguro de eliminar esta fila?",
+                    "Confirmar eliminación",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
+                    options[1]
+            );
+
+            if (confirmacion == JOptionPane.YES_OPTION) {
+                conexion.eliminarSupervisor(rutSup);
+                conexion.llenarTablaSupervisor(tablaSupervisor);
                 JOptionPane.showMessageDialog(null, "Fila eliminada exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
             }
         } else {

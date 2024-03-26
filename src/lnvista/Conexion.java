@@ -60,17 +60,17 @@ public class Conexion {
         }
     }
 
-    public void llenarTablaSupervisor(JTable tablaSupervisor,JComboBox<String> jCBSupervisor) {
+    public void llenarTablaSupervisor(JTable tablaSupervisor) {
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement("SELECT rut_superv,nombre_su,nombre_cliente,nombre_ob FROM lnmaqui.supervisor s "
-                + "JOIN lnmaqui.obrasup os ON os.id_superv=s.id_superv "
-                + "JOIN lnmaqui.obra o ON os.id_obra=o.id_obra "
-                + "JOIN lnmaqui.cliente c ON c.id_cliente = o.id_cliente "); ResultSet rs = stmt.executeQuery()) {
+                + "LEFT JOIN lnmaqui.obrasup os ON os.id_superv=s.id_superv "
+                + "LEFT JOIN lnmaqui.obra o ON os.id_obra=o.id_obra "
+                + "LEFT JOIN lnmaqui.cliente c ON c.id_cliente = o.id_cliente "); ResultSet rs = stmt.executeQuery()) {
 
             DefaultTableModel model = (DefaultTableModel) tablaSupervisor.getModel();
             model.setRowCount(0);
 
             while (rs.next()) {
-                Object[] row = {rs.getInt("rut_superv"), rs.getString("nombre_su"), rs.getString("nombre_cliente"), rs.getString("nombre_ob"),jCBSupervisor};
+                Object[] row = {rs.getInt("rut_superv"), rs.getString("nombre_su"), rs.getString("nombre_cliente"), rs.getString("nombre_ob")};
                 model.addRow(row);
             }
         } catch (SQLException e) {
@@ -308,10 +308,10 @@ public class Conexion {
     }
 
     //BARRA DE BUSQUEDA}
-    public void buscarSuper(JTextField buscatodo, JTable tablaSupervisor,JComboBox<String> jCBSupervisor) {
+    public void buscarSuper(JTextField buscatodo, JTable tablaSupervisor, JComboBox<String> jCBSupervisor) {
         String sql = "SELECT rut_superv, nombre_su, nombre_cliente, nombre_ob "
                 + "FROM lnmaqui.supervisor s "
-                +"JOIN lnmaqui.obrasup os ON os.id_superv = s.id_superv "                   
+                + "JOIN lnmaqui.obrasup os ON os.id_superv = s.id_superv "
                 + "JOIN lnmaqui.obra o ON o.id_obra = os.id_obra "
                 + "JOIN lnmaqui.cliente c ON c.id_cliente = o.id_cliente "
                 + "WHERE CAST(s.rut_superv AS VARCHAR) ILIKE '%" + buscatodo.getText().trim() + "%' "
@@ -333,7 +333,7 @@ public class Conexion {
                 e.printStackTrace();
             }
         } else {
-            llenarTablaSupervisor(tablaSupervisor,jCBSupervisor);
+            llenarTablaSupervisor(tablaSupervisor);
         }
     }
 
@@ -1383,8 +1383,7 @@ public class Conexion {
     }
 
     //CRUD SUPERVISOR
-    
-        public boolean supervisorValido(int rut) {
+    public boolean supervisorValido(int rut) {
         try (Connection conn = getConnection()) {
             String query = "SELECT COUNT(*) AS count FROM lnmaqui.supervisor WHERE rut_superv = ?";
             try (PreparedStatement ps = conn.prepareStatement(query)) {
@@ -1404,14 +1403,13 @@ public class Conexion {
         }
         return false;
     }
-    
-    
-   public void agregarSupervisor(String obra, String empresa, String rut, String nombre, Component parentComponent) {
+
+    public void agregarSupervisor(String obra, String empresa, String rut, String nombre, Component parentComponent) {
         try (Connection connection = getConnection()) {
-            
+
             int rutN = Integer.parseInt(rut);
             int idObra = obtenerIdObraPorNombre(obra);
-            
+
             if (idObra == -1) {
                 JOptionPane.showMessageDialog(parentComponent, "Obra no encontrada.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -1435,7 +1433,7 @@ public class Conexion {
                     if (generatedKeys.next()) {
                         int idSuperv = generatedKeys.getInt(1);
 
-                        String moficarObra = "UPDATE lnmaqui.obra SET id_superv = ? WHERE id_obra = ?";
+                        String moficarObra = "INSERT INTO lnmaqui.obrasup VALUES(?,?)";
                         try (PreparedStatement preparedStatementObraMaquina = connection.prepareStatement(moficarObra)) {
                             preparedStatementObraMaquina.setInt(1, idSuperv);
                             preparedStatementObraMaquina.setInt(2, idObra);
@@ -1451,4 +1449,71 @@ public class Conexion {
             e.printStackTrace();
         }
     }
+
+    public void eliminarSupervisor(String rutSup) {
+        try (Connection connection = getConnection()) {
+            if (!rutSup.isEmpty()) {
+                String query = "DELETE FROM lnmaqui.supervisor WHERE rut_superv = ?";
+                try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                    int rutSupp = Integer.parseInt(rutSup);
+                    preparedStatement.setInt(1, rutSupp);
+                    preparedStatement.executeUpdate();
+                }
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int obtenerIdsup(int rut) throws SQLException {
+        String query = "SELECT id_superv FROM lnmaqui.supervisor WHERE rut_superv = ?";
+        try (Connection connection = getConnection(); PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, rut);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("id_superv");
+                } else {
+                    return -1;
+                }
+            }
+        }
+    }
+
+
+
+    public void modificarSupervisor(String obra, String obraAnt, String nombreSup, int rutSupAnt, int rutSup, Component parentComponent) {
+        try (Connection connection = getConnection()) {
+            int obraI = obtenerIdObraPorNombre(obra);
+            int SupI = obtenerIdsup(rutSupAnt);
+            
+            if (!supervisorValido(rutSup) && rutSupAnt != rutSup) {
+                JOptionPane.showMessageDialog(parentComponent, "Run ingresado ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (!obra.equals(obraAnt)) {
+                try (PreparedStatement ps = connection.prepareStatement("UPDATE lnmaqui.obrasup SET id_obra = ? WHERE id_superv = ?")) {
+                    ps.setInt(1, obraI);
+                    ps.setInt(2, SupI);
+                    ps.executeUpdate();
+                }
+            }
+
+            String update = "UPDATE lnmaqui.supervisor SET rut_superv = ?,nombre_su = ? WHERE id_superv= ?";
+            try (PreparedStatement ps = connection.prepareStatement(update)) {
+                ps.setInt(1, rutSup);
+                ps.setString(2, nombreSup);
+                ps.setInt(3, SupI);
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(parentComponent, "Supervisor modificado exitosamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(parentComponent, "Error al modificar el supervisor en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    
 }
